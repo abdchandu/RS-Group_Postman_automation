@@ -24,8 +24,8 @@ jobs:
 
       - name: Run Postman Tests
         run: |
-          newman run PickupLocations.postman_collection.json \
-          -e DevEnv.postman_environment.json \
+          newman run RS_Commerce_Regression.postman_collection.json \
+          -e Staging-1.postman_environment.json \
           -r htmlextra,cli \
           --reporter-htmlextra-export newman-report.html
 
