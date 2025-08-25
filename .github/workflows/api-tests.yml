@@ -41,23 +41,21 @@ jobs:
           path: newman-report.html
 
       # Send email with Gmail (App Password required)
-      - name: Send email with report
+      - name: Send Email
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
-          username: ${{ secrets.SMTP_USER }}   # Your Gmail address
-          password: ${{ secrets.SMTP_PASS }}   # App Password (16 chars)
-          subject: "📊 RS Group_Test Automation Suite"
-          to: "cchatla@adobe.com"               # Change to recipients
-          from: "API Tests <${{ secrets.SMTP_USER }}>"
-          body: |
-            Hello Team,
-
-            The scheduled Postman API tests have finished running.
-            Please find the detailed Newman HTML report attached.
-
-            Regards,
-            CI/CD Bot
-          attachments: RS Group_Regression Suite_Results.html
           secure: true
+          username: ${{ secrets.GMAIL_USER }}
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: "RS Group_Test Automation Suite"
+          to: "cchatla@adobe.com"
+          from: "chandu.chatla@rsgroup.com"
+          html_body: |
+            Hello QA Team,<br><br>
+            The scheduled Postman API tests have completed.<br>
+            Please find the attached report.<br><br>
+            Regards,<br>
+            CI Bot
+          attachments: RS Group_Regression Suite_Results.html
