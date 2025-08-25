@@ -42,9 +42,9 @@ jobs:
           server_port: 465                      # SSL port (or 587 for TLS)
           username: ${{ secrets.SMTP_USER }}    # set in GitHub repo secrets
           password: ${{ secrets.SMTP_PASS }}    # set in GitHub repo secrets
-          subject: "Daily API Test Report - PickupLocations"
-          to: "qa-team@company.com"
-          from: "ci-bot@company.com"
+          subject: "RS Group_Test Automation Suite"
+          to: "cchatla@adobe.com"
+          from: "chandu.chatla@rsgroup.com"
           content_type: text/html
           body: "Hello QA Team,<br><br>The scheduled Postman API tests have completed.<br>Please find the attached report.<br><br>Regards,<br>CI Bot"
-          attachments: newman-report.html
+          attachments: RS Group_Regression Suite_Results.html
