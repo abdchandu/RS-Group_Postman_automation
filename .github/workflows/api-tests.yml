@@ -1,50 +1,63 @@
-name: API Tests
+name: API Tests with Newman
 
 on:
-  push:
-    branches: [ main ]   # Run on push to main
+  workflow_dispatch:   # allow manual trigger
   schedule:
-    - cron: "0 2 * * *"  # Run daily at 2 AM UTC
+    - cron: "0 6 * * *"   # run daily at 6 AM UTC
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      # Checkout repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
-      - name: Install Newman + Reporters
-        run: npm install -g newman newman-reporter-htmlextra
-
-      - name: Run Postman Tests
+      # Install newman + reporters
+      - name: Install Newman
         run: |
-          newman run RS_Commerce_Regression.postman_collection.json \
+          npm install -g newman newman-reporter-htmlextra
+
+      # Run Postman collection
+      - name: Run API Tests
+        run: |
+         newman run RS_Commerce_Regression.postman_collection.json \
           -e Staging-1.postman_environment.json \
           -r htmlextra,cli \
           --reporter-htmlextra-export newman-report.html
 
+      # Upload HTML report artifact
       - name: Upload Newman Report Artifact
         uses: actions/upload-artifact@v4
         with:
           name: API-Test-Report
           path: newman-report.html
 
-      - name: Send Email with Report
+      # Send email with Gmail (App Password required)
+      - name: Send email with report
         uses: dawidd6/action-send-mail@v3
         with:
-          server_address: smtp.gmail.com        # or your SMTP server
-          server_port: 465                      # SSL port (or 587 for TLS)
-          username: ${{ secrets.SMTP_USER }}    # set in GitHub repo secrets
-          password: ${{ secrets.SMTP_PASS }}    # set in GitHub repo secrets
-          subject: "RS Group_Test Automation Suite"
-          to: "cchatla@adobe.com"
-          from: "chandu.chatla@rsgroup.com"
-          content_type: text/html
-          body: "Hello QA Team,<br><br>The scheduled Postman API tests have completed.<br>Please find the attached report.<br><br>Regards,<br>CI Bot"
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.SMTP_USER }}   # Your Gmail address
+          password: ${{ secrets.SMTP_PASS }}   # App Password (16 chars)
+          subject: "📊 RS Group_Test Automation Suite"
+          to: "cchatla@adobe.com"               # Change to recipients
+          from: "API Tests <${{ secrets.SMTP_USER }}>"
+          body: |
+            Hello Team,
+
+            The scheduled Postman API tests have finished running.
+            Please find the detailed Newman HTML report attached.
+
+            Regards,
+            CI/CD Bot
           attachments: RS Group_Regression Suite_Results.html
+          secure: true
