@@ -1,0 +1,50 @@
+name: API Tests
+
+on:
+  push:
+    branches: [ main ]   # Run on push to main
+  schedule:
+    - cron: "0 2 * * *"  # Run daily at 2 AM UTC
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Newman + Reporters
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Run Postman Tests
+        run: |
+          newman run PickupLocations.postman_collection.json \
+          -e DevEnv.postman_environment.json \
+          -r htmlextra,cli \
+          --reporter-htmlextra-export newman-report.html
+
+      - name: Upload Newman Report Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: API-Test-Report
+          path: newman-report.html
+
+      - name: Send Email with Report
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com        # or your SMTP server
+          server_port: 465                      # SSL port (or 587 for TLS)
+          username: ${{ secrets.SMTP_USER }}    # set in GitHub repo secrets
+          password: ${{ secrets.SMTP_PASS }}    # set in GitHub repo secrets
+          subject: "Daily API Test Report - PickupLocations"
+          to: "qa-team@company.com"
+          from: "ci-bot@company.com"
+          content_type: text/html
+          body: "Hello QA Team,<br><br>The scheduled Postman API tests have completed.<br>Please find the attached report.<br><br>Regards,<br>CI Bot"
+          attachments: newman-report.html
