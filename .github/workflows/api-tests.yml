@@ -1,61 +1,29 @@
-name: API Tests with Newman
+# Jenkins runs pipelines on the host system that it is setup on. To run it on windows
+# install the server on a windows machine by following https://www.jenkins.io/doc/book/installing/windows/
+# once it has been setup add the below step to your pipeline file to run automated tests using Postman CLI.
 
-on:
-  workflow_dispatch:   # allow manual trigger
-  schedule:
-    - cron: "0 6 * * *"   # run daily at 6 AM UTC
+pipeline {
+  agent any
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
+  tools {nodejs "{your_nodejs_configured_tool_name}"}
 
-    steps:
-      # Checkout repo
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  stages {
+    stage('Install Postman CLI') {
+      steps {
+        sh 'powershell.exe -NoProfile -InputFormat None -ExecutionPolicy AllSigned -Command "[System.Net.ServicePointManager]::SecurityProtocol = 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://dl-cli.pstmn.io/install/win64.ps1'))"'
+      }
+    }
 
-      # Setup Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+    stage('Postman CLI Login') {
+      steps {
+        sh 'postman login --with-api-key $POSTMAN_API_KEY'
+      }
+    }
 
-      # Install newman + reporters
-      - name: Install Newman
-        run: |
-          npm install -g newman newman-reporter-htmlextra
-
-      # Run Postman collection
-      - name: Run API Tests
-        run: |
-         newman run RS_Commerce_Regression.postman_collection.json \
-          -e Staging-1.postman_environment.json \
-          -r htmlextra,cli \
-          --reporter-htmlextra-export newman-report.html
-
-      # Upload HTML report artifact
-      - name: Upload Newman Report Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: API-Test-Report
-          path: newman-report.html
-
-      # Send email with Gmail (App Password required)
-      - name: Send Email
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          secure: true
-          username: ${{ secrets.GMAIL_USER }}
-          password: ${{ secrets.GMAIL_APP_PASSWORD }}
-          subject: "RS Group_Test Automation Suite"
-          to: "cchatla@adobe.com"
-          from: "chandu.chatla@rsgroup.com"
-          html_body: |
-            Hello QA Team,<br><br>
-            The scheduled Postman API tests have completed.<br>
-            Please find the attached report.<br><br>
-            Regards,<br>
-            CI Bot
-          attachments: RS Group_Regression Suite_Results.html
+    stage('Running collection') {
+      steps {
+        sh 'postman collection run "43867066-d8efe3d0-5efe-43e3-8a79-0bff85ad069d" -e "43867066-1b1da558-5584-4eca-9458-eb3164029135"'
+      }
+    }
+  }
+}
