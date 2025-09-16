@@ -1,0 +1,45 @@
+name: Run Postman Tests
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: "0 3 * * *"   # run daily at 3am UTC
+
+jobs:
+  postman-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Newman Collection
+        run: npm run test:postman
+
+      - name: Upload report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: postman-report
+          path: reports/
+
+      - name: Send report via email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "Postman Test Report"
+          to: "chatlachandurao@gmail.com"
+          from: "CI Bot <${{ secrets.EMAIL_USERNAME }}>"
+          body: "Attached is the latest Newman PDF test report."
+          attachments: reports/report.pdf
