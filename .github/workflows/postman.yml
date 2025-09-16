@@ -2,9 +2,9 @@ name: Run Postman Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main ]        # run when code is pushed to main
   schedule:
-    - cron: "0 3 * * *"   # run daily at 3am UTC
+    - cron: "0 3 * * *"       # run daily at 3am UTC
 
 jobs:
   postman-tests:
@@ -23,7 +23,9 @@ jobs:
         run: npm install
 
       - name: Run Newman Collection
-        run: npm run test:postman
+        run: |
+          mkdir -p reports
+          npm run test:postman
 
       - name: Upload report as artifact
         uses: actions/upload-artifact@v4
@@ -38,8 +40,15 @@ jobs:
           server_port: 465
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: "Postman Test Report"
+          subject: "📊 Postman Test Report"
           to: "chatlachandurao@gmail.com"
           from: "CI Bot <${{ secrets.EMAIL_USERNAME }}>"
-          body: "Attached is the latest Newman PDF test report."
+          body: |
+            Hello Team,
+
+            The latest Postman test run has completed. 
+            Please find the attached PDF test report.
+
+            Regards,
+            CI/CD Bot 🤖
           attachments: reports/report.pdf
