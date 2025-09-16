@@ -10,6 +10,6 @@
   "devDependencies": {
     "newman": "^6.1.0",
     "newman-reporter-htmlextra": "^1.22.1",
-    "newman-reporter-pdf": "^2.0.1"
+    "newman-reporter-pdf": "github:kbjr/newman-reporter-pdf"
   }
 }
