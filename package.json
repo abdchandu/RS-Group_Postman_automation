@@ -3,7 +3,7 @@
   "version": "1.0.0",
 "dependencies": {
   "newman-reporter-pdf": "git+https://github.com/yourusername/newman-reporter-pdf.git"
-}
+},
   "scripts": {
     "test:postman": "newman run ./RS_Commerce_Regression.postman_collection.json -e ./Staging-1.postman_environment.json -r htmlextra,pdf --reporter-htmlextra-export ./reports/report.html --reporter-pdf-export ./reports/report.pdf"
   },
