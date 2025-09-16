@@ -1,0 +1,12 @@
+{
+  "name": "postman-tests",
+  "version": "1.0.0",
+  "scripts": {
+    "test:postman": "newman run ./RS_Commerce_Regression.postman_collection.json -e ./Staging-1.postman_environment.json -r htmlextra,pdf --reporter-htmlextra-export ./reports/report.html --reporter-pdf-export ./reports/report.pdf"
+  },
+  "devDependencies": {
+    "newman": "^6.1.0",
+    "newman-reporter-htmlextra": "^1.22.1",
+    "newman-reporter-pdf": "^2.0.1"
+  }
+}
