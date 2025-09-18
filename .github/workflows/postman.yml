@@ -7,12 +7,18 @@ on:
     - cron: "0 3 * * *"       # run daily at 3am UTC
 
 jobs:
-  postman-tests:
+  run-postman-tests:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Install dependencies, including the PDF reporter
+      - name: Install Newman PDF Reporter
+        run: npm install -g newman-reporter-pdf
+
+      - name: Run Newman tests
+        run: newman run <your-collection>.json -r pdf
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
