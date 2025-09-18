@@ -2,9 +2,9 @@ name: Run Postman Tests
 
 on:
   push:
-    branches: [ main ]        # run when code is pushed to main
+    branches: [ main ]
   schedule:
-    - cron: "0 3 * * *"       # run daily at 3am UTC
+    - cron: "0 3 * * *"
 
 jobs:
   run-postman-tests:
@@ -13,31 +13,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Install dependencies, including the PDF reporter
-      - name: Install Newman htmlextra reporter
-        run: npm install -g newman-reporter-htmlextra
-
-      - name: Run Newman tests
-        run: newman run RS_Commerce_Regression.postman_collection.json -r htmlextra
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install Newman and htmlextra reporter globally
+        run: npm install -g newman newman-reporter-htmlextra
 
       - name: Run Newman Collection
         run: |
           mkdir -p reports
-          npm run test: postman
+          newman run RS_Commerce_Regression.postman_collection.json \ -e Staging-1.postman_environment.json \
+            -r htmlextra \
+            --reporter-htmlextra-export reports/report.html
 
-      - name: Upload report as artifact
+      - name: Upload HTML report as artifact
         uses: actions/upload-artifact@v4
         with:
           name: postman-report
-          path: reports/
+          path: reports/report.html
 
       - name: Send report via email
         uses: dawidd6/action-send-mail@v3
@@ -52,9 +47,9 @@ jobs:
           body: |
             Hello Team,
 
-            The latest Postman test run has completed. 
-            Please find the attached PDF test report.
+            The latest Postman test run has completed.
+            Please find the attached test report.
 
             Regards,
             CI/CD Bot 🤖
-          attachments: reports/report.pdf
+          attachments: reports/report.html
