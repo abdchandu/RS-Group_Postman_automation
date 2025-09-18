@@ -18,7 +18,7 @@ jobs:
         run: npm install -g newman-reporter-pdf-generator
 
       - name: Run Newman tests
-        run: newman run <your-collection>.json -r pdf
+        run: newman run RS_Commerce_Regression.postman_collection.json -r pdf
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
